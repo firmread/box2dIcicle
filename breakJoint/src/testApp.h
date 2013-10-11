@@ -21,17 +21,32 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	void resized(int w, int h);
-    void makeAnchor(int size, ofPoint anchorPos);
-	//	the box2d world
-	ofxBox2d				box2d;
-    //	fixed anchor
-//	ofxBox2dRect			anchor;
-    vector <ofxBox2dTriangle> anchors;
-//    ofxBox2dTriangle        anchor;
-	ofxBox2dTriangle        cursor;
+
     
-    vector <ofxBox2dRect>   circles;
-	vector <ofxBox2dJoint>  joints;
+    
+    
+    //	the box2d world
+	ofxBox2d                    box2d;
+
+
+    
+    //fixed part of icicle
+    void makeAnchor(int size, ofPoint anchorPos);
+    vector <ofxBox2dTriangle>   anchors;
+
+    //breakable part of icicle
+    void makeIcicle(int size, ofPoint iciclePos, bool down);
+    vector <ofxBox2dTriangle>   icicles;
+
+    vector <ofxBox2dJoint>      joints;
+
+    
+    
+    // object follow mouse
+    ofxBox2dTriangle            cursor;
+    
+    
+	
     
     
     

@@ -27,23 +27,30 @@ void testApp::setup() {
     makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale, tri_scale));
     
 	
-	// first we add just a few circles
-	for (int i=0; i<3; i++) {
-		ofxBox2dRect circle;
-		circle.setPhysics(3.0, 0.53, 0.1);
-		circle.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2-(i*20), 20, 20);
-		circles.push_back(circle);
-	}
+	// first we add just a few icicles
+//	for (int i=0; i<3; i++) {
+//		icicle.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2-(i*20), 20, 20);
+//	}
+    
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-2*tri_scale,tri_scale), false);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-tri_scale,tri_scale), true);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale,tri_scale), false);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+2*tri_scale,tri_scale), true);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale,tri_scale), false);
+        
 	
-	// now connect each circle with a joint
-	for (int i=0; i<circles.size(); i++) {
+	// now connect each icicle with a joint
+	for (int i=0; i<icicles.size()+1; i++) {
 		
 		ofxBox2dJoint joint;
 		if(i == 0) {
-            joint.setup(box2d.getWorld(), anchors[0].body, circles[0].body);
+            joint.setup(box2d.getWorld(), anchors[0].body, icicles[0].body);
 		}
+        else if (i==icicles.size()) {
+            joint.setup(box2d.getWorld(), icicles[icicles.size()-1].body, anchors[1].body);
+        }
 		else {
-			joint.setup(box2d.getWorld(), circles[i-1].body, circles[i].body);
+			joint.setup(box2d.getWorld(), icicles[i-1].body, icicles[i].body);
 		}
         joint.setDamping(10);
 		joint.setLength(25);
@@ -64,6 +71,18 @@ void testApp::makeAnchor(int size, ofPoint anchorPos){
     
 }
 
+void testApp::makeIcicle(int size, ofPoint iciclePos, bool down){
+    ofxBox2dTriangle ici;
+    if (!down) size = -size;
+    ofPoint ici_a = iciclePos + ofPoint (-1*size, -1*size);
+    ofPoint ici_b = iciclePos + ofPoint (size, -1*size);
+    ofPoint ici_c = iciclePos + ofPoint (0, size);
+    
+    ici.setPhysics(3.0, 0.53, 0.1);
+    ici.setup(box2d.getWorld(), ici_a, ici_b, ici_c);
+    icicles.push_back(ici);
+}
+
 //--------------------------------------------------------------
 void testApp::update() {
     
@@ -82,7 +101,7 @@ void testApp::update() {
     }
     
     
-//    for (int i; i<circles.size(); i++){
+//    for (int i; i<icicles.size(); i++){
 //        if (joints[i].getReactionForce(30).length()>100) {
 //            joints[i].destroy();
 //        }
@@ -103,10 +122,10 @@ void testApp::draw() {
 	cursor.draw();
     
     
-	for(int i=0; i<circles.size(); i++) {
+	for(int i=0; i<icicles.size(); i++) {
 		ofFill();
 		ofSetHexColor(0x01b1f2);
-		circles[i].draw();
+		icicles[i].draw();
 	}
 	
 	for(int i=0; i<joints.size(); i++) {
@@ -129,24 +148,24 @@ void testApp::draw() {
 //--------------------------------------------------------------
 void testApp::keyPressed(int key) {
 	
-	if(key == 'n') {
-		
-		// add a new circle
-		ofxBox2dRect circle;
-		circle.setPhysics(3.0, 0.53, 0.1);
-		circle.setup(box2d.getWorld(), circles.back().getPosition().x+ofRandom(-30, 30), circles.back().getPosition().y-30,8, 8);
-		circles.push_back(circle);
-	
-		// get this cirlce and the prev cirlce
-		int a = (int)circles.size()-2;
-		int b = (int)circles.size()-1; 
-
-		// now connect the new circle with a joint
-		ofxBox2dJoint joint;
-		joint.setup(box2d.getWorld(), circles[a].body, circles[b].body);
-		joint.setLength(10);
-		joints.push_back(joint);
-	}
+//	if(key == 'n') {
+//		
+//		// add a new icicle
+//		ofxBox2dTriangle icicle;
+//		icicle.setPhysics(3.0, 0.53, 0.1);
+//		icicle.setup(box2d.getWorld(), icicles.back().getPosition().x+ofRandom(-30, 30), icicles.back().getPosition().y-30,8, 8);
+//		icicles.push_back(icicle);
+//	
+//		// get this cirlce and the prev cirlce
+//		int a = (int)icicles.size()-2;
+//		int b = (int)icicles.size()-1; 
+//
+//		// now connect the new icicle with a joint
+//		ofxBox2dJoint joint;
+//		joint.setup(box2d.getWorld(), icicles[a].body, icicles[b].body);
+//		joint.setLength(10);
+//		joints.push_back(joint);
+//	}
 	
 	if(key == 't') ofToggleFullscreen();
 }
