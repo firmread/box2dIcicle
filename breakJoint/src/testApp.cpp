@@ -10,61 +10,90 @@ void testApp::setup() {
 	box2d.init();
 	box2d.setGravity(0, 10);
 	box2d.setFPS(30.0);
-    box2d.createBounds();
+//    box2d.createBounds();
+    box2d.createGround(ofPoint(0,ofGetHeight()), ofPoint(ofGetWidth(),ofGetHeight()));
 	box2d.registerGrabbing();
     
+    int tri_scale = 20;
+    
     //cursor triangle
-    ofPoint cur_a = ofPoint(-10,-10);
-    ofPoint cur_b = ofPoint(10,-10);
-    ofPoint cur_c = ofPoint(0, 10);
+    ofPoint cur_a = ofPoint(-tri_scale,-tri_scale);
+    ofPoint cur_b = ofPoint(tri_scale,-tri_scale);
+    ofPoint cur_c = ofPoint(0, tri_scale);
     cursor.setup(box2d.getWorld(), cur_a, cur_b, cur_c);
     
     //anchor
 //    anchor.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2, 20, 20);
-    
-    int tri_scale = 20;
-    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2-3*tri_scale, tri_scale));
-    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale, tri_scale));
+    //0
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2-3*tri_scale, tri_scale),true);
+    //1
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2, tri_scale), false);
+    //2
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale, tri_scale),true);
     
 	
 	// first we add just a few icicles
 //	for (int i=0; i<3; i++) {
 //		icicle.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2-(i*20), 20, 20);
 //	}
-    
+    //0
     makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-2*tri_scale,tri_scale), false);
+    //1
     makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-tri_scale,tri_scale), true);
-    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale,tri_scale), false);
-    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+2*tri_scale,tri_scale), true);
-    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale,tri_scale), false);
-        
-	
-	// now connect each icicle with a joint
-	for (int i=0; i<icicles.size()+1; i++) {
-		
-		ofxBox2dJoint joint;
-		if(i == 0) {
-            joint.setup(box2d.getWorld(), anchors[0].body, icicles[0].body);
-		}
-        else if (i==icicles.size()) {
-            joint.setup(box2d.getWorld(), icicles[icicles.size()-1].body, anchors[1].body);
-        }
-		else {
-			joint.setup(box2d.getWorld(), icicles[i-1].body, icicles[i].body);
-		}
-        joint.setDamping(10);
-		joint.setLength(25);
-        joint.setFrequency(5.f);
-		joints.push_back(joint);
-	}
+    //2
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale,tri_scale), true);
+    //3
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+2*tri_scale,tri_scale), false);
+    //4
+//    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale,tri_scale), false);
+    
+    //0
+    makeJoint(anchors[0].body, icicles[0].body);
+	makeJoint(icicles[0].body, icicles[1].body);
+    makeJoint(icicles[1].body, anchors[1].body);
+    makeJoint(anchors[1].body, icicles[2].body);
+    makeJoint(icicles[2].body, icicles[3].body);
+    makeJoint(icicles[3].body, anchors[2].body);
+    
+//	// now connect each icicle with a joint
+//	for (int i=0; i<icicles.size()+1; i++) {
+//		
+//		ofxBox2dJoint joint;
+//		if(i == 0) {
+//            joint.setup(box2d.getWorld(), anchors[0].body, icicles[0].body);
+//		}
+//        else if (i==icicles.size()) {
+//            joint.setup(box2d.getWorld(), icicles[icicles.size()-1].body, anchors[1].body);
+//        }
+//		else {
+//			joint.setup(box2d.getWorld(), icicles[i-1].body, icicles[i].body);
+//		}
+//        joint.setDamping(10.f);
+//		joint.setLength(5);
+//        joint.setFrequency(2.f);
+//		joints.push_back(joint);
+//	}
 }
 
-void testApp::makeAnchor(int size, ofPoint anchorPos){
-    ofxBox2dTriangle anc;
+void testApp::makeJoint(b2Body *body1, b2Body *body2){
     
-    ofPoint anc_a = anchorPos + ofPoint(-1*size,-1*size);
-    ofPoint anc_b = anchorPos + ofPoint(size, -1*size);
-    ofPoint anc_c = anchorPos + ofPoint(0, size);
+    ofxBox2dJoint joint;
+    joint.setup(box2d.getWorld(), body1, body2);
+    
+    joint.setDamping(10.f);
+    joint.setLength(5);
+    joint.setFrequency(2.f);
+    joints.push_back(joint);
+    
+
+}
+
+void testApp::makeAnchor(int size, ofPoint anchorPos, bool down){
+    ofxBox2dTriangle anc;
+    if (!down) size = -size;
+    ofPoint anc_a = anchorPos + ofPoint(-size ,-size);
+    ofPoint anc_b = anchorPos + ofPoint(size  ,-size);
+    ofPoint anc_c = anchorPos + ofPoint(0     , size);
     
     anc.setup(box2d.getWorld(), anc_a, anc_b, anc_c);
     anchors.push_back(anc);
@@ -88,24 +117,24 @@ void testApp::update() {
     
 	box2d.update();	
     
-//    cursor.setPosition(ofPoint(mouseX, mouseY));
+    cursor.setPosition(ofPoint(mouseX, mouseY));
     
-    if (joints[0].getReactionForce(30).length()>3000) {
-        joints[0].destroy();
-    }
-    if (joints[1].getReactionForce(30).length()>3000) {
-        joints[1].destroy();
-    }
-    if (joints[2].getReactionForce(30).length()>3000) {
-        joints[2].destroy();
-    }
-    
-    
-//    for (int i; i<icicles.size(); i++){
-//        if (joints[i].getReactionForce(30).length()>100) {
-//            joints[i].destroy();
-//        }
+//    if (joints[0].getReactionForce(30).length()>3000) {
+//        joints[0].destroy();
 //    }
+//    if (joints[1].getReactionForce(30).length()>3000) {
+//        joints[1].destroy();
+//    }
+//    if (joints[2].getReactionForce(30).length()>3000) {
+//        joints[2].destroy();
+//    }
+    
+    
+    for (int i=0; i<joints.size(); i++){
+        if (joints[i].getReactionForce(30).length()>400) {
+            joints[i].destroy();
+        }
+    }
 
 }
 
@@ -138,9 +167,9 @@ void testApp::draw() {
 	info += "Press [n] to add a new joint\n";
 	info += "click and pull the chain around\n";
 	info += "FPS: "+ofToString(ofGetFrameRate(), 1)+"\n";
-    info += "joints[0] reaction force: " + ofToString(joints[0].getReactionForce(30));
-    info += "\njoints[1] reaction force: " + ofToString(joints[1].getReactionForce(30));
-    info += "\njoints[2] reaction force: " + ofToString(joints[2].getReactionForce(30));
+    info += "joints[0] reaction force: " + ofToString(joints[0].getReactionForce(30).length());
+//    info += "\njoints[1] reaction force: " + ofToString(joints[1].getReactionForce(30));
+//    info += "\njoints[2] reaction force: " + ofToString(joints[2].getReactionForce(30));
 	ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
 }
