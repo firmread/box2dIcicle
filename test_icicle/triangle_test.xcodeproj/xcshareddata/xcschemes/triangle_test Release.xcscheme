@@ -15,8 +15,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
                BuildableName = "icicle.app"
-               BlueprintName = "icicle"
-               ReferencedContainer = "container:icicle.xcodeproj">
+               BlueprintName = "triangle_test"
+               ReferencedContainer = "container:triangle_test.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,8 +33,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
             BuildableName = "icicle.app"
-            BlueprintName = "icicle"
-            ReferencedContainer = "container:icicle.xcodeproj">
+            BlueprintName = "triangle_test"
+            ReferencedContainer = "container:triangle_test.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -52,8 +52,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
             BuildableName = "icicle.app"
-            BlueprintName = "icicle"
-            ReferencedContainer = "container:icicle.xcodeproj">
+            BlueprintName = "triangle_test"
+            ReferencedContainer = "container:triangle_test.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -70,8 +70,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E4B69B5A0A3A1756003C02F2"
             BuildableName = "icicle.app"
-            BlueprintName = "icicle"
-            ReferencedContainer = "container:icicle.xcodeproj">
+            BlueprintName = "triangle_test"
+            ReferencedContainer = "container:triangle_test.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
