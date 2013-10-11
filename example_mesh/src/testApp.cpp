@@ -8,10 +8,12 @@ void testApp::setup() {
 	
 	box2d.init();
 	box2d.setGravity(0, 10);
-	box2d.createBounds();
+//	box2d.createBounds();
+    box2d.createGround();
 	box2d.setFPS(30.0);
 	box2d.registerGrabbing();
 	
+    //load image and triangulate them
     icicles.loadImage("icicles.png");
     image.allocate(icicles.width, icicles.height);
     
@@ -24,10 +26,10 @@ void testApp::setup() {
     }
     image.flagImageChanged();
     
-    finder.findContours(image, 0, 1000000, 10, false);
+    finder.findContours(image, 0, 100000, 10, false);
     
     for (int i = 0; i < finder.nBlobs; i++){
-        
+        //only taking the largest blob!
         if (i == 0){
         ofxTriangleMesh mesh;
         meshes.push_back(mesh);
@@ -37,11 +39,29 @@ void testApp::setup() {
         }
     }
     
+    for (int i=0; i < 10; i++) {
+        ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
+        ceiling[i].setup(box2d.getWorld(), rect);
+    }
+    
 }
 
 //--------------------------------------------------------------
 void testApp::update() {
-	box2d.update();	
+	box2d.update();
+    
+    for (int i=0; i<gons.size(); i++) {
+        if (gons[i].getPosition().x<0 || gons[i].getPosition().x>ofGetWidth()) {
+            gons[i].destroy();
+            gons.erase(gons.begin()+i);
+            
+        }
+        else if (gons[i].getVelocity().length() < .2){
+            gons[i].destroy();
+            gons.erase(gons.begin()+i);
+        }
+
+    }
 }
 
 
@@ -62,9 +82,17 @@ void testApp::draw() {
 		boxes[i].draw();
 	}
     
+    for(int i=0; i<10; i++) {
+		ofFill();
+		ofSetColor(100+(i*10));
+		ceiling[i].draw();
+	}
+    
+    
     for(int i=0; i<gons.size(); i++) {
 		ofFill();
 		ofSetColor(colors[i]);
+        if(i==0) ofSetColor(ofColor::salmon);
 		gons[i].draw();
 	}
 

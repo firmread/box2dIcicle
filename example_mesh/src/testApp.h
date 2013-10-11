@@ -33,6 +33,7 @@ public:
     vector		<ofxBox2dTriangle>		gons;			  //	defalut box2d rects
 	vector < ofColor > colors;
     
+    ofxBox2dRect ceiling[10];
     
     ofxCvGrayscaleImage image;
     ofxCvContourFinder finder;
