@@ -11,7 +11,7 @@ void testApp::setup() {
 	box2d.setGravity(0, 10);
 	box2d.setFPS(30.0);
     box2d.createBounds();
-//	box2d.registerGrabbing();
+	box2d.registerGrabbing();
     
     
     ofPoint a = ofPoint(-10,-10);
@@ -50,15 +50,15 @@ void testApp::update() {
     
 	box2d.update();	
     
-    cursor.setPosition(ofPoint(mouseX, mouseY));
+//    cursor.setPosition(ofPoint(mouseX, mouseY));
     
-    if (joints[0].getReactionForce(30).length()>10000) {
+    if (joints[0].getReactionForce(30).length()>3000) {
         joints[0].destroy();
     }
-    if (joints[1].getReactionForce(30).length()>10000) {
+    if (joints[1].getReactionForce(30).length()>3000) {
         joints[1].destroy();
     }
-    if (joints[2].getReactionForce(30).length()>10000) {
+    if (joints[2].getReactionForce(30).length()>3000) {
         joints[2].destroy();
     }
     
