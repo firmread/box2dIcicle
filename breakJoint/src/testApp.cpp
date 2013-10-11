@@ -27,8 +27,10 @@ void testApp::setup() {
     //0
     makeAnchor(tri_scale, ofPoint(ofGetWidth()/2-3*tri_scale, tri_scale),true);
     //1
-    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2, tri_scale), false);
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2-tri_scale, tri_scale), true);
     //2
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+tri_scale, tri_scale), true);
+    //3
     makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale, tri_scale),true);
     
 	
@@ -36,24 +38,71 @@ void testApp::setup() {
 //	for (int i=0; i<3; i++) {
 //		icicle.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2-(i*20), 20, 20);
 //	}
+    
+    //ROW 1
     //0
     makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-2*tri_scale,tri_scale), false);
     //1
-    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-tri_scale,tri_scale), true);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2,tri_scale), false);
     //2
-    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale,tri_scale), true);
-    //3
     makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+2*tri_scale,tri_scale), false);
+
+    //ROW 2 part 1
+    //3
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-2*tri_scale,3*tri_scale), true);
     //4
-//    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale,tri_scale), false);
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2,3*tri_scale), true);
+    //5
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+2*tri_scale,3*tri_scale), true);
     
-    //0
+    //ROW 2 part 2
+    //6
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-tri_scale, 3*tri_scale), false);
+    //7
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale, 3*tri_scale), false);
+    
+    //ROW 3
+    //8
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2-tri_scale, 5*tri_scale), true);
+    //9
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2+tri_scale, 5*tri_scale), true);
+    //10
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2, 5*tri_scale), false);
+    
+    //ROW 4
+    //11
+    makeIcicle(tri_scale, ofPoint(ofGetWidth()/2, 7*tri_scale), true);
+    
+    
+    //row1
     makeJoint(anchors[0].body, icicles[0].body);
-	makeJoint(icicles[0].body, icicles[1].body);
-    makeJoint(icicles[1].body, anchors[1].body);
-    makeJoint(anchors[1].body, icicles[2].body);
-    makeJoint(icicles[2].body, icicles[3].body);
-    makeJoint(icicles[3].body, anchors[2].body);
+	makeJoint(icicles[0].body, anchors[1].body);
+    makeJoint(anchors[1].body, icicles[1].body);
+    makeJoint(icicles[1].body, anchors[2].body);
+    makeJoint(anchors[2].body, icicles[2].body);
+    makeJoint(icicles[2].body, anchors[3].body);
+    
+    //row 1 - 2
+    makeJoint(icicles[0].body, icicles[3].body);
+    makeJoint(icicles[1].body, icicles[4].body);
+    makeJoint(icicles[2].body, icicles[5].body);
+    
+    //row2
+    makeJoint(icicles[3].body, icicles[6].body);
+    makeJoint(icicles[6].body, icicles[4].body);
+    makeJoint(icicles[4].body, icicles[7].body);
+    makeJoint(icicles[7].body, icicles[5].body);
+    
+    //row 2 - 3
+    makeJoint(icicles[6].body, icicles[8].body);
+    makeJoint(icicles[7].body, icicles[9].body);
+    //row3
+    makeJoint(icicles[8].body, icicles[10].body);
+    makeJoint(icicles[9].body, icicles[10].body);
+    
+    //ice tip
+    makeJoint(icicles[10].body, icicles[11].body);
+    
     
 //	// now connect each icicle with a joint
 //	for (int i=0; i<icicles.size()+1; i++) {
@@ -131,7 +180,7 @@ void testApp::update() {
     
     
     for (int i=0; i<joints.size(); i++){
-        if (joints[i].getReactionForce(30).length()>400) {
+        if (joints[i].getReactionForce(30).length()>300) {
             joints[i].destroy();
         }
     }
@@ -168,8 +217,8 @@ void testApp::draw() {
 	info += "click and pull the chain around\n";
 	info += "FPS: "+ofToString(ofGetFrameRate(), 1)+"\n";
     info += "joints[0] reaction force: " + ofToString(joints[0].getReactionForce(30).length());
-//    info += "\njoints[1] reaction force: " + ofToString(joints[1].getReactionForce(30));
-//    info += "\njoints[2] reaction force: " + ofToString(joints[2].getReactionForce(30));
+    info += "\njoints[1] reaction force: " + ofToString(joints[1].getReactionForce(30).length());
+    info += "\njoints[2] reaction force: " + ofToString(joints[2].getReactionForce(30).length());
 	ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
 }
