@@ -13,12 +13,19 @@ void testApp::setup() {
     box2d.createBounds();
 	box2d.registerGrabbing();
     
+    //cursor triangle
+    ofPoint cur_a = ofPoint(-10,-10);
+    ofPoint cur_b = ofPoint(10,-10);
+    ofPoint cur_c = ofPoint(0, 10);
+    cursor.setup(box2d.getWorld(), cur_a, cur_b, cur_c);
     
-    ofPoint a = ofPoint(-10,-10);
-    ofPoint b = ofPoint(10,-10);
-    ofPoint c = ofPoint(0, 10);
-    cursor.setup(box2d.getWorld(), a, b, c);
-    anchor.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2, 20, 20);
+    //anchor
+//    anchor.setup(box2d.getWorld(), ofGetWidth()/2, ofGetHeight()/2, 20, 20);
+    
+    int tri_scale = 20;
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2-3*tri_scale, tri_scale));
+    makeAnchor(tri_scale, ofPoint(ofGetWidth()/2+3*tri_scale, tri_scale));
+    
 	
 	// first we add just a few circles
 	for (int i=0; i<3; i++) {
@@ -33,7 +40,7 @@ void testApp::setup() {
 		
 		ofxBox2dJoint joint;
 		if(i == 0) {
-            joint.setup(box2d.getWorld(), anchor.body, circles[0].body);
+            joint.setup(box2d.getWorld(), anchors[0].body, circles[0].body);
 		}
 		else {
 			joint.setup(box2d.getWorld(), circles[i-1].body, circles[i].body);
@@ -43,6 +50,18 @@ void testApp::setup() {
         joint.setFrequency(5.f);
 		joints.push_back(joint);
 	}
+}
+
+void testApp::makeAnchor(int size, ofPoint anchorPos){
+    ofxBox2dTriangle anc;
+    
+    ofPoint anc_a = anchorPos + ofPoint(-1*size,-1*size);
+    ofPoint anc_b = anchorPos + ofPoint(size, -1*size);
+    ofPoint anc_c = anchorPos + ofPoint(0, size);
+    
+    anc.setup(box2d.getWorld(), anc_a, anc_b, anc_c);
+    anchors.push_back(anc);
+    
 }
 
 //--------------------------------------------------------------
@@ -76,7 +95,10 @@ void testApp::update() {
 void testApp::draw() {
 	
 	ofSetHexColor(0xf2ab01);
-	anchor.draw();
+    
+	for(int i=0; i<anchors.size(); i++) {
+        anchors[i].draw();
+    }
     ofSetHexColor(0x366272);
 	cursor.draw();
     

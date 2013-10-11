@@ -21,12 +21,17 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	void resized(int w, int h);
-	
-	ofxBox2d						box2d;			  //	the box2d world
-	ofxBox2dRect					anchor;			  //	fixed anchor
-	ofxBox2dTriangle                    cursor;
-    vector		<ofxBox2dRect>	circles;		  //	default box2d circles
-	vector		<ofxBox2dJoint>		joints;			  //	joints
+    void makeAnchor(int size, ofPoint anchorPos);
+	//	the box2d world
+	ofxBox2d				box2d;
+    //	fixed anchor
+//	ofxBox2dRect			anchor;
+    vector <ofxBox2dTriangle> anchors;
+//    ofxBox2dTriangle        anchor;
+	ofxBox2dTriangle        cursor;
+    
+    vector <ofxBox2dRect>   circles;
+	vector <ofxBox2dJoint>  joints;
     
     
     

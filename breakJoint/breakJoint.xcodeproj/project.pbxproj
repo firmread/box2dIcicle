@@ -118,6 +118,7 @@
 		469610240a273862d8b39ce4df7f945b /* b2Shape.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = b2Shape.h; path = ../../../addons/ofxBox2d/libs/Box2D/Collision/Shapes/b2Shape.h; sourceTree = SOURCE_ROOT; };
 		4760FEA9180733110091D352 /* ofxBox2dTriangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxBox2dTriangle.cpp; sourceTree = "<group>"; };
 		4760FEAA180733110091D352 /* ofxBox2dTriangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxBox2dTriangle.h; sourceTree = "<group>"; };
+		477A59331807AEA0008CC466 /* anchor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = anchor.h; sourceTree = "<group>"; };
 		4c1a083ac6f4f462ebc575655c1e2c66 /* b2CircleContact.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = b2CircleContact.cpp; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Contacts/b2CircleContact.cpp; sourceTree = SOURCE_ROOT; };
 		4c4c77963004e4a4d8ff1d00f9d88bb3 /* b2Joint.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = b2Joint.h; path = ../../../addons/ofxBox2d/libs/Box2D/Dynamics/Joints/b2Joint.h; sourceTree = SOURCE_ROOT; };
 		4edf97d9cfa957d48315b0a9054d1f78 /* dpoint.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = dpoint.hpp; path = ../../../addons/ofxBox2d/libs/triangle/dpoint.hpp; sourceTree = SOURCE_ROOT; };
@@ -441,6 +442,7 @@
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				4760FEA9180733110091D352 /* ofxBox2dTriangle.cpp */,
 				4760FEAA180733110091D352 /* ofxBox2dTriangle.h */,
+				477A59331807AEA0008CC466 /* anchor.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
