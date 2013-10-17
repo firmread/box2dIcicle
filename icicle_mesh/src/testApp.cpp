@@ -43,7 +43,6 @@ void testApp::setup() {
     
     
     
-	ofAddListener(box2d.contactStartEvents, this, &testApp::contactStart);
     
     
 //    // ceiling static rectangles
@@ -58,28 +57,6 @@ void testApp::setup() {
 }
 
 
-//
-//--------------------------------------------------------------
-void testApp::contactStart(ofxBox2dContactArgs &e) {
-	if(e.a != NULL && e.b != NULL) {
-		if(e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_polygon) {
-            e.a->GetBody()->SetType(b2_dynamicBody);
-            e.b->GetBody()->SetType(b2_dynamicBody);
-        }
-//        e.a->GetBody()->SetAwake(false);
-//        e.b->GetBody()->SetAwake(false);
-	}
-}
-//
-//--------------------------------------------------------------
-//void testApp::contactEnd(ofxBox2dContactArgs &e) {
-//	if(e.a != NULL && e.b != NULL) {
-//		
-//	}
-//}
-
-
-//--------------------------------------------------------------
 
 
 
@@ -101,13 +78,6 @@ void testApp::update() {
 	box2d.update();
 //    box2d.createGround();
     for (int i=0; i<gons.size(); i++) {
-//        if (!gons[i].isActive) {
-//            
-//        }
-//
-//        else gons[i].addForce(ofVec2f(0, 1), 10);
-        
-        //delete icicles those are not moving
         //out of screen
         if (gons[i].getPosition().x<0
             || gons[i].getPosition().x>ofGetWidth()
@@ -116,8 +86,9 @@ void testApp::update() {
             gons.erase(gons.begin()+i);
         }
         //or stop moving
-        else if (gons[i].getVelocity().length() < .1 && gons[i].isActive){
-            
+        else if (gons[i].getVelocity().length() < .1){
+            gons[i].destroy();
+            gons.erase(gons.begin()+i);
         }
 
     }
@@ -262,31 +233,66 @@ void testApp::keyPressed(int key) {
                 colors.push_back(icicles.getColor(midPt.x, midPt.y));
                 gon.setPhysics(2.0, 0.53, 0.1);
                 gon.setup(box2d.getWorld(), a, b, c);
-                gon.body->SetType(b2_staticBody);
+//                gon.body->SetType(b2_staticBody);
                 gons.push_back(gon);
                 
-                
-                //triangle made
-                
-//                int edgeCheck = 0;
 //                
+//                //triangle made
+//                int edgeCheck = 0;
+
+                
+/// condition type 1
 //                if ( a == prevA || a == prevB || a == prevC) edgeCheck ++;
 //                if ( b == prevA || b == prevB || b == prevC) edgeCheck ++;
 //                if ( c == prevA || c == prevB || c == prevC) edgeCheck ++;
+//
+               
+/// condition type 2
+//                if (ofDist(a.x, a.y, prevA.x, prevA.y) < 10 ||
+//                    ofDist(a.x, a.y, prevB.x, prevB.y) < 10 ||
+//                    ofDist(a.x, a.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
+//                
+//                if (ofDist(b.x, b.y, prevA.x, prevA.y) < 10 ||
+//                    ofDist(b.x, b.y, prevB.x, prevB.y) < 10 ||
+//                    ofDist(b.x, b.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
+//                
+//                if (ofDist(c.x, c.y, prevA.x, prevA.y) < 10 ||
+//                    ofDist(c.x, c.y, prevB.x, prevB.y) < 10 ||
+//                    ofDist(c.x, c.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
+//                
+//                
 //                
 //                if (edgeCheck > 1){
-//                    makeJoint(gons., <#b2Body *body2#>)
+//                    makeJoint(gons[gons.size()-1].body, gons[gons.size()-2].body);
 //                }
+//                
+//                prevA = a;
+//                prevB = b;
+//                prevC = c;
+                
+                
+                
+            }
+        }
+        
+        //make joints
+        for (int i=0 ; i< gons.size(); i++) {
+            for (int j=0; j<gons.size(); j++) {
+                if (i!=j){
+                    if (ofDist(gons[i].getPosition().x,
+                               gons[i].getPosition().y,
+                               gons[j].getPosition().x,
+                               gons[j].getPosition().y ) > 100)
+                        makeJoint(gons[i].body, gons[j].body);
+                    
+                    
+                    
+                }
             }
         }
         
     }
     
-    if(key == 'z'){
-        for (int i=0; i<gons.size(); i++) {
-            gons[i].body->SetType(b2_dynamicBody);
-        }
-    }
     
 	
 	if(key == 't') ofToggleFullscreen();
