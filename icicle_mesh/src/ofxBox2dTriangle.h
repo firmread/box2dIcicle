@@ -32,6 +32,7 @@ public:
 	void addRepulsionForce(ofVec2f pt, float amt);
     
     bool isActive;
+    ofPoint initA, initB, initC;
 
 };
 

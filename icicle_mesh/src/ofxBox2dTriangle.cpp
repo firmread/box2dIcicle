@@ -121,6 +121,10 @@ void ofxBox2dTriangle::setup(b2World * b2dworld, ofPoint a, ofPoint b, ofPoint c
     // update the rectShape
     getTriangleShape();
     
+    
+    a= initA;
+    b= initB;
+    c= initC;
 }
 
 ////------------------------------------------------

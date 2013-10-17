@@ -45,11 +45,11 @@ void testApp::setup() {
     
     
     
-//    // ceiling static rectangles
-//    for (int i=0; i < 10; i++) {
-//        ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
-//        ceiling[i].setup(box2d.getWorld(), rect);
-//    }
+    // ceiling static rectangles
+    for (int i=0; i < 10; i++) {
+        ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
+        ceiling[i].setup(box2d.getWorld(), rect);
+    }
     
     
     
@@ -60,13 +60,13 @@ void testApp::setup() {
 
 
 
-void testApp::makeJoint(b2Body *body1, b2Body *body2){
+void testApp::makeJoint(ofxBox2dBaseShape shape1, ofxBox2dBaseShape shape2){
     
     ofxBox2dJoint joint;
-    joint.setup(box2d.getWorld(), body1, body2);
+    joint.setup(box2d.getWorld(), shape1.body, shape2.body);
     
     joint.setDamping(10.f);
-    joint.setLength(5);
+    joint.setLength(ofDist(shape1.getPosition().x, shape1.getPosition().y, shape2.getPosition().x, shape2.getPosition().y));
     joint.setFrequency(2.f);
     joints.push_back(joint);
     
@@ -122,6 +122,14 @@ void testApp::update() {
 //            boxes.erase(boxes.begin()+i);
 //        }
 	}
+    
+    
+//    for (int i=0; i<joints.size(); i++){
+//        if (joints[i].getReactionForce(30).length()>300) {
+//            joints[i].destroy();
+//        }
+//    }
+    
 }
 
 
@@ -142,20 +150,25 @@ void testApp::draw() {
 		boxes[i].draw();
 	}
     //draw ceiling blocks
-//    for(int i=0; i<10; i++) {
-//		ofFill();
-//		ofSetColor(100+(i*10));
-//		ceiling[i].draw();
-//	}
+    for(int i=0; i<10; i++) {
+		ofFill();
+		ofSetColor(100+(i*10));
+		ceiling[i].draw();
+	}
     
     
     for(int i=0; i<gons.size(); i++) {
 		ofFill();
 		ofSetColor(colors[i]);
-        if(i==0) ofSetColor(ofColor::salmon);
 		gons[i].draw();
 	}
 
+//    for(int i=0; i<joints.size(); i++) {
+//        ofSetHexColor(0x444342);
+//        joints[i].draw();
+//    }
+    
+    
 	// draw the ground
 	box2d.drawGround();
 	
@@ -236,8 +249,8 @@ void testApp::keyPressed(int key) {
 //                gon.body->SetType(b2_staticBody);
                 gons.push_back(gon);
                 
-//                
-//                //triangle made
+//
+                //triangle made
 //                int edgeCheck = 0;
 
                 
@@ -275,22 +288,61 @@ void testApp::keyPressed(int key) {
             }
         }
         
+//        //make joints
+//        for (int i=0 ; i< gons.size(); i++) {
+//            for (int j=0; j<gons.size(); j++) {
+//                if (i!=j){
+//                    if (ofDist(gons[i].getPosition().x,
+//                               gons[i].getPosition().y,
+//                               gons[j].getPosition().x,
+//                               gons[j].getPosition().y ) > 5)
+//                        makeJoint(gons[i].body, gons[j].body);
+//                    
+//                    
+//                    
+//                }
+//            }
+//        }
+        
+        
+        
         //make joints
         for (int i=0 ; i< gons.size(); i++) {
             for (int j=0; j<gons.size(); j++) {
-                if (i!=j){
-                    if (ofDist(gons[i].getPosition().x,
-                               gons[i].getPosition().y,
-                               gons[j].getPosition().x,
-                               gons[j].getPosition().y ) > 100)
-                        makeJoint(gons[i].body, gons[j].body);
+                if (i!=j && ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 100){
+                    
+                    int edgeCheck = 0;
+                    int jointArea = 3;
+
+                    if (gons[i].initA == gons[j].initA ||
+                        gons[i].initA == gons[j].initB ||
+                        gons[i].initA == gons[j].initC) edgeCheck++;
+                    if (gons[i].initB == gons[j].initA ||
+                        gons[i].initB == gons[j].initB ||
+                        gons[i].initB == gons[j].initC) edgeCheck++;
+                    if (gons[i].initC == gons[j].initA ||
+                        gons[i].initC == gons[j].initB ||
+                        gons[i].initC == gons[j].initC) edgeCheck++;
                     
                     
+//                    if (ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
+//                        ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
+//                        ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
+//                    
+//                    if (ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
+//                        ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
+//                        ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
+//                    
+//                    if (ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
+//                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
+//                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
+                    
+                    if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
                     
                 }
             }
         }
-        
+
     }
     
     

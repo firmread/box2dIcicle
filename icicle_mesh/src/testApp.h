@@ -63,7 +63,7 @@ public:
     
     
     //joints
-    void makeJoint(b2Body *body1, b2Body *body2);
+    void makeJoint(ofxBox2dBaseShape shape1, ofxBox2dBaseShape shape2);
     vector <ofxBox2dJoint>      joints;
     
     
