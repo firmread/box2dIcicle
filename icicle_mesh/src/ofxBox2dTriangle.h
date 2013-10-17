@@ -33,7 +33,8 @@ public:
     
     bool isActive;
     ofPoint initA, initB, initC;
-
+    ofPoint initPts[3];
+    
 };
 
 

@@ -122,9 +122,9 @@ void ofxBox2dTriangle::setup(b2World * b2dworld, ofPoint a, ofPoint b, ofPoint c
     getTriangleShape();
     
     
-    a= initA;
-    b= initB;
-    c= initC;
+    initA = a;
+    initB = b;
+    initC = c;
 }
 
 ////------------------------------------------------
@@ -228,10 +228,11 @@ void ofxBox2dTriangle::draw() {
     getTriangleShape();
     
     ofPath path;
-    for (int i=0; i<shape.size(); i++) {
+    for (int i=0; i<shape.size()+1; i++) {
         if(i==0)path.moveTo(shape[i]);
-        else path.lineTo(shape[i]);
+        else path.lineTo(shape[i% shape.size()]);
     }
+    
     
     // draw the path
     path.setColor(ofGetStyle().color);

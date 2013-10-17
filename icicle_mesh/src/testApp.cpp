@@ -8,7 +8,6 @@ void testApp::setup() {
 	
 	box2d.init();
 	box2d.setGravity(0, 10);
-//	box2d.createBounds();
     box2d.createGround();
 	box2d.setFPS(30.0);
 	box2d.registerGrabbing();
@@ -47,10 +46,14 @@ void testApp::setup() {
     
     // ceiling static rectangles
     for (int i=0; i < 10; i++) {
+        ofxBox2dRect temp;
         ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
-        ceiling[i].setup(box2d.getWorld(), rect);
+        temp.setup(box2d.getWorld(), rect);
+        ceilings.push_back(temp);
     }
     
+    
+    //ofSetFrameRate(5);
     
     
     
@@ -60,7 +63,7 @@ void testApp::setup() {
 
 
 
-void testApp::makeJoint(ofxBox2dBaseShape shape1, ofxBox2dBaseShape shape2){
+void testApp::makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2){
     
     ofxBox2dJoint joint;
     joint.setup(box2d.getWorld(), shape1.body, shape2.body);
@@ -75,53 +78,53 @@ void testApp::makeJoint(ofxBox2dBaseShape shape1, ofxBox2dBaseShape shape2){
 
 //--------------------------------------------------------------
 void testApp::update() {
-	box2d.update();
+	
 //    box2d.createGround();
-    for (int i=0; i<gons.size(); i++) {
-        //out of screen
-        if (gons[i].getPosition().x<0
-            || gons[i].getPosition().x>ofGetWidth()
-            || gons[i].getPosition().y> ofGetHeight()+100) {
-            gons[i].destroy();
-            gons.erase(gons.begin()+i);
-        }
-        //or stop moving
-        else if (gons[i].getVelocity().length() < .1){
-            gons[i].destroy();
-            gons.erase(gons.begin()+i);
-        }
-
-    }
-    //delete circles those are not moving
-	for(int i=0; i<circles.size(); i++) {
-        if (circles[i].getPosition().x<0
-            || circles[i].getPosition().x>ofGetWidth()
-            || circles[i].getPosition().y> ofGetHeight()+100) {
-            circles[i].destroy();
-            circles.erase(circles.begin()+i);
-            
-        }
-        
-//        else if (circles[i].getVelocity().length() < .2){
+//    for (int i=0; i<gons.size(); i++) {
+//        //out of screen
+//        if (gons[i].getPosition().x<0
+//            || gons[i].getPosition().x>ofGetWidth()
+//            || gons[i].getPosition().y> ofGetHeight()+100) {
+//            gons[i].destroy();
+//            gons.erase(gons.begin()+i);
+//        }
+//        //or stop moving
+//        else if (gons[i].getVelocity().length() < .1){
+//            gons[i].destroy();
+//            gons.erase(gons.begin()+i);
+//        }
+//
+//    }
+//    //delete circles those are not moving
+//	for(int i=0; i<circles.size(); i++) {
+//        if (circles[i].getPosition().x<0
+//            || circles[i].getPosition().x>ofGetWidth()
+//            || circles[i].getPosition().y> ofGetHeight()+100) {
 //            circles[i].destroy();
 //            circles.erase(circles.begin()+i);
+//            
 //        }
-	}
-	//delete rectangles those are not moving
-	for(int i=0; i<boxes.size(); i++) {
-        if (boxes[i].getPosition().x<0
-            || boxes[i].getPosition().x>ofGetWidth()
-            || boxes[i].getPosition().y> ofGetHeight()+100) {
-            boxes[i].destroy();
-            boxes.erase(boxes.begin()+i);
-            
-        }
-        
-//        else if (boxes[i].getVelocity().length() < .2){
+//        
+////        else if (circles[i].getVelocity().length() < .2){
+////            circles[i].destroy();
+////            circles.erase(circles.begin()+i);
+////        }
+//	}
+//	//delete rectangles those are not moving
+//	for(int i=0; i<boxes.size(); i++) {
+//        if (boxes[i].getPosition().x<0
+//            || boxes[i].getPosition().x>ofGetWidth()
+//            || boxes[i].getPosition().y> ofGetHeight()+100) {
 //            boxes[i].destroy();
 //            boxes.erase(boxes.begin()+i);
+//            
 //        }
-	}
+//        
+////        else if (boxes[i].getVelocity().length() < .2){
+////            boxes[i].destroy();
+////            boxes.erase(boxes.begin()+i);
+////        }
+//	}
     
     
 //    for (int i=0; i<joints.size(); i++){
@@ -150,23 +153,31 @@ void testApp::draw() {
 		boxes[i].draw();
 	}
     //draw ceiling blocks
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<ceilings.size(); i++) {
 		ofFill();
 		ofSetColor(100+(i*10));
-		ceiling[i].draw();
+		ceilings [i].draw();
 	}
     
     
     for(int i=0; i<gons.size(); i++) {
 		ofFill();
-		ofSetColor(colors[i]);
-		gons[i].draw();
+		ofSetColor(30,30,30);
+        if (i == 30 || i == 31) ofSetColor(255,0,0);
+        gons[i].draw();
+        
+        
+        ofNoFill();
+		ofSetColor(100,100,100);
+        if (i == 30 || i == 31) ofSetColor(255,0,0);
+        gons[i].draw();
 	}
 
-//    for(int i=0; i<joints.size(); i++) {
-//        ofSetHexColor(0x444342);
-//        joints[i].draw();
-//    }
+    cout << joints.size() << endl;
+    for(int i=0; i<joints.size(); i++) {
+        ofSetHexColor(0xFFFFFF);
+        joints[i].draw();
+    }
     
     
 	// draw the ground
@@ -308,21 +319,21 @@ void testApp::keyPressed(int key) {
         
         //make joints
         for (int i=0 ; i< gons.size(); i++) {
-            for (int j=0; j<gons.size(); j++) {
-                if (i!=j && ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 100){
-                    
+            for (int j=0; j<i; j++) {
+                if ( ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 100){
+                    cout << " " << i << " " << j << endl;
                     int edgeCheck = 0;
                     int jointArea = 3;
 
-                    if (gons[i].initA == gons[j].initA ||
-                        gons[i].initA == gons[j].initB ||
-                        gons[i].initA == gons[j].initC) edgeCheck++;
-                    if (gons[i].initB == gons[j].initA ||
-                        gons[i].initB == gons[j].initB ||
-                        gons[i].initB == gons[j].initC) edgeCheck++;
-                    if (gons[i].initC == gons[j].initA ||
-                        gons[i].initC == gons[j].initB ||
-                        gons[i].initC == gons[j].initC) edgeCheck++;
+                    if (gons[i].initA.distance(gons[j].initA) < 1 ||
+                        gons[i].initA.distance(gons[j].initB) < 1 ||
+                        gons[i].initA.distance(gons[j].initC) < 1 ) edgeCheck++;
+                    if (gons[i].initB.distance(gons[j].initA) < 1 ||
+                        gons[i].initB.distance(gons[j].initB) < 1 ||
+                        gons[i].initB.distance(gons[j].initC) < 1 ) edgeCheck++;
+                    if (gons[i].initC.distance(gons[j].initA) < 1 ||
+                        gons[i].initC.distance(gons[j].initB) < 1 ||
+                        gons[i].initC.distance(gons[j].initC) < 1 ) edgeCheck++;
                     
                     
 //                    if (ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
@@ -337,10 +348,30 @@ void testApp::keyPressed(int key) {
 //                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
 //                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
                     
+                    cout << edgeCheck << endl;
                     if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
-                    
+                    else {
+                        cout << "any in common? " << edgeCheck << endl;
+                    }
                 }
             }
+            
+            
+            //makeJoint(gons[30], gons[31]);
+            
+            
+//            if ( gons[i].getPosition().x < 20 ){
+//                for ( int j= 0; j< ceilings.size(); j++){
+//                    if (ofDist(gons[i].getPosition().x, gons[i].getPosition().y,
+//                               ceilings[j].getPosition().x, ceilings[j].getPosition().y) < 50)  {
+//                        makeJoint(gons[i], ceilings[j]);
+//                        
+//                        
+//                    }
+//                }
+//                
+//            }
+            
         }
 
     }
@@ -348,6 +379,8 @@ void testApp::keyPressed(int key) {
     
 	
 	if(key == 't') ofToggleFullscreen();
+    
+    if (key=='q') box2d.update();
 }
 
 //--------------------------------------------------------------

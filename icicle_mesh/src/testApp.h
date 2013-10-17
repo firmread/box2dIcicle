@@ -51,7 +51,7 @@ public:
     vector < ofColor > colors;
     
     
-    ofxBox2dRect ceiling[10];
+    vector		<ofxBox2dRect>		ceilings;
     //for icicle anchors
     
     ofxCvGrayscaleImage image;
@@ -63,7 +63,7 @@ public:
     
     
     //joints
-    void makeJoint(ofxBox2dBaseShape shape1, ofxBox2dBaseShape shape2);
+    void makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2);
     vector <ofxBox2dJoint>      joints;
     
     
