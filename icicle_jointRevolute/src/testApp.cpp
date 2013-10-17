@@ -126,8 +126,8 @@ void testApp::setup() {
 
 void testApp::makeJoint(b2Body *body1, b2Body *body2){
     
-    ofxBox2dJoint joint;
-    joint.setup(box2d.getWorld(), body1, body2);
+    ofxBox2dRevoluteJoint joint;
+    joint.addJoint(body1, body2);
 
     joint.setDamping(10.f);
     joint.setLength(5);
@@ -181,7 +181,7 @@ void testApp::update() {
     
     for (int i=0; i<joints.size(); i++){
         if (joints[i].getReactionForce(30).length()>300) {
-            joints[i].destroy();
+            joints[i].destroyJoint();
         }
     }
     

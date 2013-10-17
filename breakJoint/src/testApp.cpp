@@ -128,7 +128,7 @@ void testApp::makeJoint(b2Body *body1, b2Body *body2){
     
     ofxBox2dJoint joint;
     joint.setup(box2d.getWorld(), body1, body2);
-
+    
     joint.setDamping(10.f);
     joint.setLength(5);
     joint.setFrequency(2.f);
@@ -184,8 +184,6 @@ void testApp::update() {
             joints[i].destroy();
         }
     }
-    
-    
 
 }
 

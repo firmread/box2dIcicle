@@ -4,6 +4,7 @@
 #include "ofxBox2dTriangle.h"
 
 #include "ofxBox2dRevoluteJoint.h"
+#include "ofxBox2dWeldJoint.h"
 
 // -------------------------------------------------
 
@@ -41,7 +42,7 @@ public:
 
     //joints
     void makeJoint(b2Body *body1, b2Body *body2);
-    vector <ofxBox2dJoint>      joints;
+    vector <ofxBox2dRevoluteJoint>      joints;
 
     
     
