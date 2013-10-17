@@ -7,14 +7,14 @@ void testApp::setup() {
 	ofSetLogLevel(OF_LOG_NOTICE);
 	
 	box2d.init();
-	box2d.setGravity(0, 10);
+	box2d.setGravity(0, 0);
 //	box2d.createBounds();
     box2d.createGround();
 	box2d.setFPS(30.0);
 	box2d.registerGrabbing();
 	
     //load image and triangulate them
-    icicles.loadImage("icicles.png");
+    icicles.loadImage("icicles_S2.png");
     image.allocate(icicles.width, icicles.height);
     
     unsigned char * pixa = icicles.getPixels();
@@ -26,7 +26,7 @@ void testApp::setup() {
     }
     image.flagImageChanged();
     
-    finder.findContours(image, 0, 100000, 10, false);
+    finder.findContours(image, 0, 1000000, 10, false);
     
     for (int i = 0; i < finder.nBlobs; i++){
         //only taking the largest blob!
@@ -35,14 +35,53 @@ void testApp::setup() {
         meshes.push_back(mesh);
         ofPolyline line;
         line.addVertices(finder.blobs[i].pts);
-        meshes[meshes.size()-1].triangulate(line, -1, 10000);
+        //in this app mesh.size seems to always = 1
+        meshes[meshes.size()-1].triangulate(line, -1, 10000000);
         }
     }
-    
+    // ceiling static rectangles
     for (int i=0; i < 10; i++) {
         ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
         ceiling[i].setup(box2d.getWorld(), rect);
     }
+    
+    
+    
+    
+}
+
+
+
+//--------------------------------------------------------------
+void testApp::contactStart(ofxBox2dContactArgs &e) {
+	if(e.a != NULL && e.b != NULL) {
+		if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
+        }
+	}
+}
+
+//--------------------------------------------------------------
+void testApp::contactEnd(ofxBox2dContactArgs &e) {
+	if(e.a != NULL && e.b != NULL) {
+		
+	}
+}
+
+
+//--------------------------------------------------------------
+
+
+
+void testApp::makeJoint(b2Body *body1, b2Body *body2){
+    
+    ofxBox2dJoint joint;
+    joint.setup(box2d.getWorld(), body1, body2);
+    
+    joint.setDamping(10.f);
+    joint.setLength(5);
+    joint.setFrequency(2.f);
+    joints.push_back(joint);
+    
     
 }
 
@@ -50,18 +89,54 @@ void testApp::setup() {
 void testApp::update() {
 	box2d.update();
     
+    //delete icicles those are not moving
     for (int i=0; i<gons.size(); i++) {
-        if (gons[i].getPosition().x<0 || gons[i].getPosition().x>ofGetWidth()) {
+        if (gons[i].isActive) gons[i].addForce(ofVec2f(0, 1), 10);
+        
+        //out of screen
+        if (gons[i].getPosition().x<0
+            || gons[i].getPosition().x>ofGetWidth()
+            || gons[i].getPosition().y> ofGetHeight()+100) {
             gons[i].destroy();
             gons.erase(gons.begin()+i);
-            
         }
-        else if (gons[i].getVelocity().length() < .2){
+        //stop moving
+        else if (gons[i].getVelocity().length() < .2 && gons[i].isActive){
             gons[i].destroy();
             gons.erase(gons.begin()+i);
         }
 
     }
+    //delete circles those are not moving
+	for(int i=0; i<circles.size(); i++) {
+        if (circles[i].getPosition().x<0
+            || circles[i].getPosition().x>ofGetWidth()
+            || circles[i].getPosition().y> ofGetHeight()+100) {
+            circles[i].destroy();
+            circles.erase(circles.begin()+i);
+            
+        }
+        
+        else if (circles[i].getVelocity().length() < .2){
+            circles[i].destroy();
+            circles.erase(circles.begin()+i);
+        }
+	}
+	//delete rectangles those are not moving
+	for(int i=0; i<boxes.size(); i++) {
+        if (boxes[i].getPosition().x<0
+            || boxes[i].getPosition().x>ofGetWidth()
+            || boxes[i].getPosition().y> ofGetHeight()+100) {
+            boxes[i].destroy();
+            boxes.erase(boxes.begin()+i);
+            
+        }
+        
+        else if (boxes[i].getVelocity().length() < .2){
+            boxes[i].destroy();
+            boxes.erase(boxes.begin()+i);
+        }
+	}
 }
 
 
@@ -81,7 +156,7 @@ void testApp::draw() {
 		ofSetHexColor(0xBF2545);
 		boxes[i].draw();
 	}
-    
+    //draw ceiling blocks
     for(int i=0; i<10; i++) {
 		ofFill();
 		ofSetColor(100+(i*10));
@@ -107,13 +182,16 @@ void testApp::draw() {
 	info += "Total Bodies: "+ofToString(box2d.getBodyCount())+"\n";
 	info += "Total Joints: "+ofToString(box2d.getJointCount())+"\n\n";
 	info += "FPS: "+ofToString(ofGetFrameRate(), 1)+"\n";
+    info += "meshes.size(): " + ofToString(meshes.size())+"\n";
+    info += "meshes[0].triangles.size(): " + ofToString(meshes[0].triangles.size())+"\n";
+//    info += "meshes[1].triangles.size(): " + ofToString(meshes[1].triangles.size())+"\n";
 	ofSetColor(ofColor::white);
 	ofDrawBitmapString(info, 30, 30);
 
     //finder.draw();
     
     for (int i = 0; i < meshes.size(); i++){
-        //meshes[i].draw();
+//        meshes[i].draw();
     }
 }
 
@@ -152,6 +230,9 @@ void testApp::keyPressed(int key) {
     }
     
     if (key == ' '){
+        // generating ofxBox2dTriangle from mesh
+        
+//        ofPoint prevA, prevB, prevC;
         
         for (int i = 0; i < meshes.size(); i++){
             for (int j = 0; j < meshes[i].triangles.size(); j++){
@@ -166,16 +247,28 @@ void testApp::keyPressed(int key) {
                 
                 colors.push_back(icicles.getColor(midPt.x, midPt.y));
                 
-                
                 gon.setPhysics(2.0, 0.53, 0.1);
                 
                 gon.setup(box2d.getWorld(), a, b, c);
                 gons.push_back(gon);
                 
                 
+                //triangle made
                 
+//                int edgeCheck = 0;
+//                
+//                if ( a == prevA || a == prevB || a == prevC) edgeCheck ++;
+//                if ( b == prevA || b == prevB || b == prevC) edgeCheck ++;
+//                if ( c == prevA || c == prevB || c == prevC) edgeCheck ++;
+//                
+//                if (edgeCheck > 1){
+//                    makeJoint(gons., <#b2Body *body2#>)
+//                }
             }
         }
+        
+        // compare two triangles to form joints
+        
         
     }
     
