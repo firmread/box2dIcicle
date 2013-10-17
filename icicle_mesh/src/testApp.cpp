@@ -7,7 +7,7 @@ void testApp::setup() {
 	ofSetLogLevel(OF_LOG_NOTICE);
 	
 	box2d.init();
-	box2d.setGravity(0, 0);
+	box2d.setGravity(0, 10);
 //	box2d.createBounds();
     box2d.createGround();
 	box2d.setFPS(30.0);
@@ -39,11 +39,18 @@ void testApp::setup() {
         meshes[meshes.size()-1].triangulate(line, -1, 10000000);
         }
     }
-    // ceiling static rectangles
-    for (int i=0; i < 10; i++) {
-        ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
-        ceiling[i].setup(box2d.getWorld(), rect);
-    }
+    
+    
+    
+    
+	ofAddListener(box2d.contactStartEvents, this, &testApp::contactStart);
+    
+    
+//    // ceiling static rectangles
+//    for (int i=0; i < 10; i++) {
+//        ofRectangle rect = ofRectangle((i)*ofGetWidth()/10+ofGetWidth()/20, -10, ofGetWidth()/10-10, 14);
+//        ceiling[i].setup(box2d.getWorld(), rect);
+//    }
     
     
     
@@ -51,21 +58,25 @@ void testApp::setup() {
 }
 
 
-
+//
 //--------------------------------------------------------------
 void testApp::contactStart(ofxBox2dContactArgs &e) {
 	if(e.a != NULL && e.b != NULL) {
-		if(e.a->GetType() == b2Shape::e_circle && e.b->GetType() == b2Shape::e_circle) {
+		if(e.a->GetType() == b2Shape::e_polygon && e.b->GetType() == b2Shape::e_polygon) {
+            e.a->GetBody()->SetType(b2_dynamicBody);
+            e.b->GetBody()->SetType(b2_dynamicBody);
         }
+//        e.a->GetBody()->SetAwake(false);
+//        e.b->GetBody()->SetAwake(false);
 	}
 }
-
+//
 //--------------------------------------------------------------
-void testApp::contactEnd(ofxBox2dContactArgs &e) {
-	if(e.a != NULL && e.b != NULL) {
-		
-	}
-}
+//void testApp::contactEnd(ofxBox2dContactArgs &e) {
+//	if(e.a != NULL && e.b != NULL) {
+//		
+//	}
+//}
 
 
 //--------------------------------------------------------------
@@ -88,11 +99,15 @@ void testApp::makeJoint(b2Body *body1, b2Body *body2){
 //--------------------------------------------------------------
 void testApp::update() {
 	box2d.update();
-    
-    //delete icicles those are not moving
+//    box2d.createGround();
     for (int i=0; i<gons.size(); i++) {
-        if (gons[i].isActive) gons[i].addForce(ofVec2f(0, 1), 10);
+//        if (!gons[i].isActive) {
+//            
+//        }
+//
+//        else gons[i].addForce(ofVec2f(0, 1), 10);
         
+        //delete icicles those are not moving
         //out of screen
         if (gons[i].getPosition().x<0
             || gons[i].getPosition().x>ofGetWidth()
@@ -100,10 +115,9 @@ void testApp::update() {
             gons[i].destroy();
             gons.erase(gons.begin()+i);
         }
-        //stop moving
-        else if (gons[i].getVelocity().length() < .2 && gons[i].isActive){
-            gons[i].destroy();
-            gons.erase(gons.begin()+i);
+        //or stop moving
+        else if (gons[i].getVelocity().length() < .1 && gons[i].isActive){
+            
         }
 
     }
@@ -117,10 +131,10 @@ void testApp::update() {
             
         }
         
-        else if (circles[i].getVelocity().length() < .2){
-            circles[i].destroy();
-            circles.erase(circles.begin()+i);
-        }
+//        else if (circles[i].getVelocity().length() < .2){
+//            circles[i].destroy();
+//            circles.erase(circles.begin()+i);
+//        }
 	}
 	//delete rectangles those are not moving
 	for(int i=0; i<boxes.size(); i++) {
@@ -132,10 +146,10 @@ void testApp::update() {
             
         }
         
-        else if (boxes[i].getVelocity().length() < .2){
-            boxes[i].destroy();
-            boxes.erase(boxes.begin()+i);
-        }
+//        else if (boxes[i].getVelocity().length() < .2){
+//            boxes[i].destroy();
+//            boxes.erase(boxes.begin()+i);
+//        }
 	}
 }
 
@@ -157,11 +171,11 @@ void testApp::draw() {
 		boxes[i].draw();
 	}
     //draw ceiling blocks
-    for(int i=0; i<10; i++) {
-		ofFill();
-		ofSetColor(100+(i*10));
-		ceiling[i].draw();
-	}
+//    for(int i=0; i<10; i++) {
+//		ofFill();
+//		ofSetColor(100+(i*10));
+//		ceiling[i].draw();
+//	}
     
     
     for(int i=0; i<gons.size(); i++) {
@@ -246,10 +260,9 @@ void testApp::keyPressed(int key) {
                 ofPoint midPt = (a+b+c)/3;
                 
                 colors.push_back(icicles.getColor(midPt.x, midPt.y));
-                
                 gon.setPhysics(2.0, 0.53, 0.1);
-                
                 gon.setup(box2d.getWorld(), a, b, c);
+                gon.body->SetType(b2_staticBody);
                 gons.push_back(gon);
                 
                 
@@ -267,11 +280,13 @@ void testApp::keyPressed(int key) {
             }
         }
         
-        // compare two triangles to form joints
-        
-        
     }
     
+    if(key == 'z'){
+        for (int i=0; i<gons.size(); i++) {
+            gons[i].body->SetType(b2_dynamicBody);
+        }
+    }
     
 	
 	if(key == 't') ofToggleFullscreen();

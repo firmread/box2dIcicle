@@ -29,12 +29,12 @@ public:
 	
     
     
-    
-	// this is the function for contacts
+//    
+//	// this is the function for contacts
 	void contactStart(ofxBox2dContactArgs &e);
-	void contactEnd(ofxBox2dContactArgs &e);
-    
-    
+//	void contactEnd(ofxBox2dContactArgs &e);
+//    
+//    
     
     
     
