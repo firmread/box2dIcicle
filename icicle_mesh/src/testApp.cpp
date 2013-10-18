@@ -30,19 +30,13 @@ void testApp::setup() {
     for (int i = 0; i < finder.nBlobs; i++){
         //only taking the largest blob!
         if (i == 0){
-        ofxTriangleMesh mesh;
-        meshes.push_back(mesh);
-        ofPolyline line;
-        line.addVertices(finder.blobs[i].pts);
-        //in this app mesh.size seems to always = 1
-        meshes[meshes.size()-1].triangulate(line, -1, 10000000);
+            ofxTriangleMesh mesh;
+            meshes.push_back(mesh);
+            ofPolyline line;
+            line.addVertices(finder.blobs[i].pts);
+            meshes[meshes.size()-1].triangulate(line, -1, 10000);
         }
     }
-    
-    
-    
-    
-    
     
     // ceiling static rectangles
     for (int i=0; i < 10; i++) {
@@ -52,11 +46,7 @@ void testApp::setup() {
         ceilings.push_back(temp);
     }
     
-    
-    //ofSetFrameRate(5);
-    
-    
-    
+    bShowTriNum = false;
 }
 
 
@@ -72,7 +62,6 @@ void testApp::makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2){
     joint.setLength(ofDist(shape1.getPosition().x, shape1.getPosition().y, shape2.getPosition().x, shape2.getPosition().y));
     joint.setFrequency(2.f);
     joints.push_back(joint);
-    
     
 }
 
@@ -173,7 +162,7 @@ void testApp::draw() {
         gons[i].draw();
 	}
 
-    cout << joints.size() << endl;
+//    cout << joints.size() << endl;
     for(int i=0; i<joints.size(); i++) {
         ofSetHexColor(0xFFFFFF);
         joints[i].draw();
@@ -188,6 +177,8 @@ void testApp::draw() {
 	string info = "";
 	info += "Press [c] for circles\n";
 	info += "Press [b] for blocks\n";
+	info += "Press [t] for fullscreen\n";
+	info += "Press [q] for update\n";
 	info += "Total Bodies: "+ofToString(box2d.getBodyCount())+"\n";
 	info += "Total Joints: "+ofToString(box2d.getJointCount())+"\n\n";
 	info += "FPS: "+ofToString(ofGetFrameRate(), 1)+"\n";
@@ -195,7 +186,15 @@ void testApp::draw() {
     info += "meshes[0].triangles.size(): " + ofToString(meshes[0].triangles.size())+"\n";
 //    info += "meshes[1].triangles.size(): " + ofToString(meshes[1].triangles.size())+"\n";
 	ofSetColor(ofColor::white);
-	ofDrawBitmapString(info, 30, 30);
+	ofDrawBitmapString(info, ofGetWidth() - 300, 30);
+    
+    if (bShowTriNum) {
+        
+        for (int i =0; i<gons.size(); i++) {
+            ofDrawBitmapString(ofToString(i), gons[i].getPosition());
+        }
+            
+    }
 
     //finder.draw();
     
@@ -207,15 +206,26 @@ void testApp::draw() {
 //--------------------------------------------------------------
 void testApp::keyPressed(int key) {
 	
-	if(key == 'c') {
-		float r = ofRandom(4, 20);		// a random radius 4px - 20px
+	if (key == 't') ofToggleFullscreen();
+    
+    //update box2dworld
+    if (key == 'q') box2d.update();
+    
+    if (key == 'n') {
+        bShowTriNum = !bShowTriNum;
+    }
+    
+    //make circle
+	if (key == 'c') {
+		float r = ofRandom(4, 20);
 		ofxBox2dCircle circle;
 		circle.setPhysics(3.0, 0.53, 0.1);
 		circle.setup(box2d.getWorld(), mouseX, mouseY, r);
 		circles.push_back(circle);
 	}
-	
-	if(key == 'b') {
+    
+	//make box
+	if (key == 'b') {
 		float w = ofRandom(4, 20);	
 		float h = ofRandom(4, 20);	
 		ofxBox2dRect rect;
@@ -223,8 +233,9 @@ void testApp::keyPressed(int key) {
 		rect.setup(box2d.getWorld(), mouseX, mouseY, w, h);
 		boxes.push_back(rect);
 	}
+    
+    //make triangle
     if (key == 'p'){
-        
         ofxBox2dTriangle gon;
         ofPoint a = ofPoint(ofVec2f(-20,-20) + ofPoint(mouseX, mouseY));
         ofPoint b = ofPoint(ofVec2f(0,0) + ofPoint(mouseX, mouseY));
@@ -234,15 +245,17 @@ void testApp::keyPressed(int key) {
        
         gon.setup(box2d.getWorld(), a, b, c);
         gons.push_back(gon);
-        
-        
     }
     
+//    if (key == 'a'){
+//        ofxBox2dTriangle gon;
+//        gon.setPhysics(2.0, 0.53, 0.1);
+//        gon.setup(box2d.getWorld(), a, b, c);
+//        gons.push_back(gon);
+//        
+//    }
+    
     if (key == ' '){
-        // generating ofxBox2dTriangle from mesh
-        
-//        ofPoint prevA, prevB, prevC;
-        
         for (int i = 0; i < meshes.size(); i++){
             for (int j = 0; j < meshes[i].triangles.size(); j++){
                 meshTriangle t = meshes[i].triangles[j];
@@ -257,102 +270,52 @@ void testApp::keyPressed(int key) {
                 colors.push_back(icicles.getColor(midPt.x, midPt.y));
                 gon.setPhysics(2.0, 0.53, 0.1);
                 gon.setup(box2d.getWorld(), a, b, c);
-//                gon.body->SetType(b2_staticBody);
                 gons.push_back(gon);
-                
-//
-                //triangle made
-//                int edgeCheck = 0;
-
-                
-/// condition type 1
-//                if ( a == prevA || a == prevB || a == prevC) edgeCheck ++;
-//                if ( b == prevA || b == prevB || b == prevC) edgeCheck ++;
-//                if ( c == prevA || c == prevB || c == prevC) edgeCheck ++;
-//
-               
-/// condition type 2
-//                if (ofDist(a.x, a.y, prevA.x, prevA.y) < 10 ||
-//                    ofDist(a.x, a.y, prevB.x, prevB.y) < 10 ||
-//                    ofDist(a.x, a.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
-//                
-//                if (ofDist(b.x, b.y, prevA.x, prevA.y) < 10 ||
-//                    ofDist(b.x, b.y, prevB.x, prevB.y) < 10 ||
-//                    ofDist(b.x, b.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
-//                
-//                if (ofDist(c.x, c.y, prevA.x, prevA.y) < 10 ||
-//                    ofDist(c.x, c.y, prevB.x, prevB.y) < 10 ||
-//                    ofDist(c.x, c.y, prevC.x, prevC.y) < 10 ) edgeCheck++;
-//                
-//                
-//                
-//                if (edgeCheck > 1){
-//                    makeJoint(gons[gons.size()-1].body, gons[gons.size()-2].body);
-//                }
-//                
-//                prevA = a;
-//                prevB = b;
-//                prevC = c;
-                
-                
                 
             }
         }
         
-//        //make joints
-//        for (int i=0 ; i< gons.size(); i++) {
-//            for (int j=0; j<gons.size(); j++) {
-//                if (i!=j){
-//                    if (ofDist(gons[i].getPosition().x,
-//                               gons[i].getPosition().y,
-//                               gons[j].getPosition().x,
-//                               gons[j].getPosition().y ) > 5)
-//                        makeJoint(gons[i].body, gons[j].body);
-//                    
-//                    
-//                    
-//                }
-//            }
-//        }
-        
-        
-        
         //make joints
         for (int i=0 ; i< gons.size(); i++) {
-            for (int j=0; j<i; j++) {
-                if ( ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 100){
-                    cout << " " << i << " " << j << endl;
-                    int edgeCheck = 0;
-                    int jointArea = 3;
+            for (int j=0; j<gons.size(); j++) {
+//                if ( ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 30){
+                cout << " " << i << " " << j << endl;
+                int edgeCheck = 0;
+                int jointArea = 3;
 
-                    if (gons[i].initA.distance(gons[j].initA) < 1 ||
-                        gons[i].initA.distance(gons[j].initB) < 1 ||
-                        gons[i].initA.distance(gons[j].initC) < 1 ) edgeCheck++;
-                    if (gons[i].initB.distance(gons[j].initA) < 1 ||
-                        gons[i].initB.distance(gons[j].initB) < 1 ||
-                        gons[i].initB.distance(gons[j].initC) < 1 ) edgeCheck++;
-                    if (gons[i].initC.distance(gons[j].initA) < 1 ||
-                        gons[i].initC.distance(gons[j].initB) < 1 ||
-                        gons[i].initC.distance(gons[j].initC) < 1 ) edgeCheck++;
-                    
-                    
-//                    if (ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
-//                        ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
-//                        ofDist(gons[i].initA.x, gons[i].initA.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
-//                    
-//                    if (ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
-//                        ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
-//                        ofDist(gons[i].initB.x, gons[i].initB.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
-//                    
-//                    if (ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initA.x, gons[j].initA.y) < jointArea ||
-//                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initB.x, gons[j].initB.y) < jointArea ||
-//                        ofDist(gons[i].initC.x, gons[i].initC.y, gons[j].initC.x, gons[j].initC.y) < jointArea ) edgeCheck++;
-                    
-                    cout << edgeCheck << endl;
-                    if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
-                    else {
-                        cout << "any in common? " << edgeCheck << endl;
-                    }
+//                    if (gons[i].initA.distance(gons[j].initA) < 1 ||
+//                        gons[i].initA.distance(gons[j].initB) < 1 ||
+//                        gons[i].initA.distance(gons[j].initC) < 1 ) edgeCheck++;
+//                    if (gons[i].initB.distance(gons[j].initA) < 1 ||
+//                        gons[i].initB.distance(gons[j].initB) < 1 ||
+//                        gons[i].initB.distance(gons[j].initC) < 1 ) edgeCheck++;
+//                    if (gons[i].initC.distance(gons[j].initA) < 1 ||
+//                        gons[i].initC.distance(gons[j].initB) < 1 ||
+//                        gons[i].initC.distance(gons[j].initC) < 1 ) edgeCheck++;
+                
+                if (abs((abs(gons[i].initA.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initA.y)) == 0) ||
+                    abs((abs(gons[i].initA.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initB.y)) == 0) ||
+                    abs((abs(gons[i].initA.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
+                if (abs((abs(gons[i].initB.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initA.y)) == 0) ||
+                    abs((abs(gons[i].initB.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initB.y)) == 0) ||
+                    abs((abs(gons[i].initB.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
+                if (abs((abs(gons[i].initC.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initA.y)) == 0) ||
+                    abs((abs(gons[i].initC.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initB.y)) == 0) ||
+                    abs((abs(gons[i].initC.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
+                
+                
+                cout << edgeCheck << endl;
+                cout << i << "A:" << gons[i].initA.x << " | " << gons[i].initA.y <<endl;
+                cout << i << "B:" << gons[i].initB.x << " | " << gons[i].initB.y <<endl;
+                cout << i << "C:" << gons[i].initC.x << " | " << gons[i].initC.y <<endl;
+                cout << j << "A:" << gons[j].initA.x << " | " << gons[j].initA.y <<endl;
+                cout << j << "B:" << gons[j].initB.x << " | " << gons[j].initB.y <<endl;
+                cout << j << "C:" << gons[j].initC.x << " | " << gons[j].initC.y <<endl;
+                
+                if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
+                else {
+                    cout << "any in common? " << edgeCheck << endl;
+//                    }
                 }
             }
             
@@ -370,18 +333,11 @@ void testApp::keyPressed(int key) {
 //                    }
 //                }
 //                
-//            }
             
         }
-
     }
-    
-    
-	
-	if(key == 't') ofToggleFullscreen();
-    
-    if (key=='q') box2d.update();
 }
+        
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key) {

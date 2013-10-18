@@ -78,7 +78,10 @@ void ofxBox2dTriangle::setup(b2World * b2dworld, ofPoint a, ofPoint b, ofPoint c
         a = temp;
     }
    
-    
+    initA = a;
+    initB = b;
+    initC = c;
+
     
     ofPoint midPt = (a + b + c)/ 3.0;
 	
@@ -122,9 +125,7 @@ void ofxBox2dTriangle::setup(b2World * b2dworld, ofPoint a, ofPoint b, ofPoint c
     getTriangleShape();
     
     
-    initA = a;
-    initB = b;
-    initC = c;
+    
 }
 
 ////------------------------------------------------
