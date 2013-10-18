@@ -13,7 +13,7 @@ void testApp::setup() {
 	box2d.registerGrabbing();
 	
     //load image and triangulate them
-    icicles.loadImage("icicles_S2.png");
+    icicles.loadImage("cube.png");
     image.allocate(icicles.width, icicles.height);
     
     unsigned char * pixa = icicles.getPixels();
@@ -34,7 +34,7 @@ void testApp::setup() {
             meshes.push_back(mesh);
             ofPolyline line;
             line.addVertices(finder.blobs[i].pts);
-            meshes[meshes.size()-1].triangulate(line, -1, 10000);
+            meshes[meshes.size()-1].triangulate(line, -1, 1000);
         }
     }
     
@@ -47,6 +47,7 @@ void testApp::setup() {
     }
     
     bShowTriNum = false;
+    bBox2dUpdate = false;
 }
 
 
@@ -55,12 +56,12 @@ void testApp::setup() {
 
 void testApp::makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2){
     
-    ofxBox2dJoint joint;
+    ofxBox2dWeldJoint joint;
     joint.setup(box2d.getWorld(), shape1.body, shape2.body);
-    
-    joint.setDamping(10.f);
-    joint.setLength(ofDist(shape1.getPosition().x, shape1.getPosition().y, shape2.getPosition().x, shape2.getPosition().y));
-    joint.setFrequency(2.f);
+    float pointDist = ofDist(shape1.getPosition().x, shape1.getPosition().y, shape2.getPosition().x, shape2.getPosition().y);
+//    joint.setDamping(10.f);
+//    joint.setLength(pointDist * 0.8);
+//    joint.setFrequency(2.f);
     joints.push_back(joint);
     
 }
@@ -116,11 +117,13 @@ void testApp::update() {
 //	}
     
     
-//    for (int i=0; i<joints.size(); i++){
-//        if (joints[i].getReactionForce(30).length()>300) {
-//            joints[i].destroy();
-//        }
-//    }
+    for (int i=0; i<joints.size(); i++){
+        if (joints[i].getReactionForce(30).length()>20) {
+            joints[i].destroy();
+        }
+    }
+    
+    if (bBox2dUpdate) box2d.update();
     
 }
 
@@ -175,16 +178,18 @@ void testApp::draw() {
 	
 	
 	string info = "";
-	info += "Press [c] for circles\n";
-	info += "Press [b] for blocks\n";
-	info += "Press [t] for fullscreen\n";
-	info += "Press [q] for update\n";
+	info += "Press [spacebar] to load object\n";
+	info += "Press [q] one step update\n";
+	info += "Press [a] update on/off \n";
+	info += "Press [c] add circles\n";
+	info += "Press [b] add blocks\n";
+	info += "Press [t] go fullscreen\n";
+	info += "Press [n] show body numbers\n";
 	info += "Total Bodies: "+ofToString(box2d.getBodyCount())+"\n";
 	info += "Total Joints: "+ofToString(box2d.getJointCount())+"\n\n";
 	info += "FPS: "+ofToString(ofGetFrameRate(), 1)+"\n";
     info += "meshes.size(): " + ofToString(meshes.size())+"\n";
     info += "meshes[0].triangles.size(): " + ofToString(meshes[0].triangles.size())+"\n";
-//    info += "meshes[1].triangles.size(): " + ofToString(meshes[1].triangles.size())+"\n";
 	ofSetColor(ofColor::white);
 	ofDrawBitmapString(info, ofGetWidth() - 300, 30);
     
@@ -209,11 +214,13 @@ void testApp::keyPressed(int key) {
 	if (key == 't') ofToggleFullscreen();
     
     //update box2dworld
-    if (key == 'q') box2d.update();
-    
-    if (key == 'n') {
-        bShowTriNum = !bShowTriNum;
+    if (key == 'q') {
+        if (bBox2dUpdate) bBox2dUpdate = false;
+        box2d.update();
     }
+    if (key == 'a') bBox2dUpdate = !bBox2dUpdate;
+    if (key == 'n') bShowTriNum = !bShowTriNum;
+    
     
     //make circle
 	if (key == 'c') {
@@ -247,13 +254,6 @@ void testApp::keyPressed(int key) {
         gons.push_back(gon);
     }
     
-//    if (key == 'a'){
-//        ofxBox2dTriangle gon;
-//        gon.setPhysics(2.0, 0.53, 0.1);
-//        gon.setup(box2d.getWorld(), a, b, c);
-//        gons.push_back(gon);
-//        
-//    }
     
     if (key == ' '){
         for (int i = 0; i < meshes.size(); i++){
@@ -278,45 +278,30 @@ void testApp::keyPressed(int key) {
         //make joints
         for (int i=0 ; i< gons.size(); i++) {
             for (int j=0; j<gons.size(); j++) {
-//                if ( ofDist(gons[i].getPosition().x, gons[i].getPosition().y, gons[j].getPosition().x, gons[j].getPosition().y) < 30){
                 cout << " " << i << " " << j << endl;
                 int edgeCheck = 0;
                 int jointArea = 3;
 
-//                    if (gons[i].initA.distance(gons[j].initA) < 1 ||
-//                        gons[i].initA.distance(gons[j].initB) < 1 ||
-//                        gons[i].initA.distance(gons[j].initC) < 1 ) edgeCheck++;
-//                    if (gons[i].initB.distance(gons[j].initA) < 1 ||
-//                        gons[i].initB.distance(gons[j].initB) < 1 ||
-//                        gons[i].initB.distance(gons[j].initC) < 1 ) edgeCheck++;
-//                    if (gons[i].initC.distance(gons[j].initA) < 1 ||
-//                        gons[i].initC.distance(gons[j].initB) < 1 ||
-//                        gons[i].initC.distance(gons[j].initC) < 1 ) edgeCheck++;
+                if (gons[i].initA.distance(gons[j].initA) < 1 ||
+                    gons[i].initA.distance(gons[j].initB) < 1 ||
+                    gons[i].initA.distance(gons[j].initC) < 1 ) edgeCheck++;
+                if (gons[i].initB.distance(gons[j].initA) < 1 ||
+                    gons[i].initB.distance(gons[j].initB) < 1 ||
+                    gons[i].initB.distance(gons[j].initC) < 1 ) edgeCheck++;
+                if (gons[i].initC.distance(gons[j].initA) < 1 ||
+                    gons[i].initC.distance(gons[j].initB) < 1 ||
+                    gons[i].initC.distance(gons[j].initC) < 1 ) edgeCheck++;
                 
-                if (abs((abs(gons[i].initA.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initA.y)) == 0) ||
-                    abs((abs(gons[i].initA.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initB.y)) == 0) ||
-                    abs((abs(gons[i].initA.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initA.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
-                if (abs((abs(gons[i].initB.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initA.y)) == 0) ||
-                    abs((abs(gons[i].initB.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initB.y)) == 0) ||
-                    abs((abs(gons[i].initB.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initB.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
-                if (abs((abs(gons[i].initC.x)-abs(gons[j].initA.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initA.y)) == 0) ||
-                    abs((abs(gons[i].initC.x)-abs(gons[j].initB.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initB.y)) == 0) ||
-                    abs((abs(gons[i].initC.x)-abs(gons[j].initC.x)) == 0 && abs(abs(gons[i].initC.y)-abs(gons[j].initC.y)) == 0)) edgeCheck++;
-                
-                
-                cout << edgeCheck << endl;
-                cout << i << "A:" << gons[i].initA.x << " | " << gons[i].initA.y <<endl;
-                cout << i << "B:" << gons[i].initB.x << " | " << gons[i].initB.y <<endl;
-                cout << i << "C:" << gons[i].initC.x << " | " << gons[i].initC.y <<endl;
-                cout << j << "A:" << gons[j].initA.x << " | " << gons[j].initA.y <<endl;
-                cout << j << "B:" << gons[j].initB.x << " | " << gons[j].initB.y <<endl;
-                cout << j << "C:" << gons[j].initC.x << " | " << gons[j].initC.y <<endl;
+//                cout << edgeCheck << endl;
+//                cout << i << "A:" << gons[i].initA.x << " | " << gons[i].initA.y <<endl;
+//                cout << i << "B:" << gons[i].initB.x << " | " << gons[i].initB.y <<endl;
+//                cout << i << "C:" << gons[i].initC.x << " | " << gons[i].initC.y <<endl;
+//                cout << j << "A:" << gons[j].initA.x << " | " << gons[j].initA.y <<endl;
+//                cout << j << "B:" << gons[j].initB.x << " | " << gons[j].initB.y <<endl;
+//                cout << j << "C:" << gons[j].initC.x << " | " << gons[j].initC.y <<endl;
                 
                 if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
-                else {
-                    cout << "any in common? " << edgeCheck << endl;
-//                    }
-                }
+                else cout << "any in common? " << edgeCheck << endl;
             }
             
             

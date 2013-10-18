@@ -5,6 +5,7 @@
 #include "ofxBox2d.h"
 #include "ofxBox2dTriangle.h"
 #include "ofxTriangleMesh.h"
+#include "ofxBox2dWeldJoint.h"
 
 
 
@@ -64,8 +65,10 @@ public:
     
     //joints
     void makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2);
-    vector <ofxBox2dJoint>      joints;
-    bool bShowTriNum;
+    vector <ofxBox2dWeldJoint>      joints;
+    
+    
+    bool bShowTriNum, bBox2dUpdate;
     
     
     
