@@ -13,7 +13,7 @@ void testApp::setup() {
 	box2d.registerGrabbing();
 	
     //load image and triangulate them
-    icicles.loadImage("cube.png");
+    icicles.loadImage("icicles_S3.png");
     image.allocate(icicles.width, icicles.height);
     
     unsigned char * pixa = icicles.getPixels();
@@ -34,7 +34,7 @@ void testApp::setup() {
             meshes.push_back(mesh);
             ofPolyline line;
             line.addVertices(finder.blobs[i].pts);
-            meshes[meshes.size()-1].triangulate(line, -1, 1000);
+            meshes[meshes.size()-1].triangulate(line, -1, 500);
         }
     }
     
@@ -118,7 +118,7 @@ void testApp::update() {
     
     
     for (int i=0; i<joints.size(); i++){
-        if (joints[i].getReactionForce(30).length()>20) {
+        if (joints[i].getReactionForce(30).length()>50) {
             joints[i].destroy();
         }
     }
