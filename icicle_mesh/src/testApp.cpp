@@ -34,7 +34,7 @@ void testApp::setup() {
             meshes.push_back(mesh);
             ofPolyline line;
             line.addVertices(finder.blobs[i].pts);
-            meshes[meshes.size()-1].triangulate(line, -1, 1000);
+            meshes[meshes.size()-1].triangulate(line, -1, 900);
         }
     }
     
@@ -56,12 +56,12 @@ void testApp::setup() {
 
 void testApp::makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2){
     
-    ofxBox2dWeldJoint joint;
+    ofxBox2dJoint joint;
     joint.setup(box2d.getWorld(), shape1.body, shape2.body);
     float pointDist = ofDist(shape1.getPosition().x, shape1.getPosition().y, shape2.getPosition().x, shape2.getPosition().y);
-//    joint.setDamping(10.f);
-//    joint.setLength(pointDist * 0.8);
-//    joint.setFrequency(2.f);
+    joint.setDamping(0.7f);
+    joint.setLength(pointDist * 0.8);
+    joint.setFrequency(2.f);
     joints.push_back(joint);
     
 }
@@ -118,7 +118,7 @@ void testApp::update() {
     
     
     for (int i=0; i<joints.size(); i++){
-        if (joints[i].getReactionForce(30).length()>20) {
+        if (joints[i].getReactionForce(30).length()>50) {
             joints[i].destroy();
         }
     }
@@ -278,7 +278,7 @@ void testApp::keyPressed(int key) {
         //make joints
         for (int i=0 ; i< gons.size(); i++) {
             for (int j=0; j<gons.size(); j++) {
-                cout << " " << i << " " << j << endl;
+//                cout << " " << i << " " << j << endl;
                 int edgeCheck = 0;
                 int jointArea = 3;
 
@@ -301,7 +301,7 @@ void testApp::keyPressed(int key) {
 //                cout << j << "C:" << gons[j].initC.x << " | " << gons[j].initC.y <<endl;
                 
                 if (edgeCheck > 1) makeJoint(gons[i], gons[j]);
-                else cout << "any in common? " << edgeCheck << endl;
+//                else cout << "any in common? " << edgeCheck << endl;
             }
             
             
@@ -319,6 +319,10 @@ void testApp::keyPressed(int key) {
 //                }
 //                
             
+        }
+        
+        for (int i =0 ; i< joints.size(); i++) {
+            cout << i << " : " << joints[i].getLength() << endl;
         }
     }
 }

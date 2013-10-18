@@ -65,7 +65,7 @@ public:
     
     //joints
     void makeJoint(ofxBox2dBaseShape & shape1, ofxBox2dBaseShape & shape2);
-    vector <ofxBox2dWeldJoint>      joints;
+    vector <ofxBox2dJoint>      joints;
     
     
     bool bShowTriNum, bBox2dUpdate;
